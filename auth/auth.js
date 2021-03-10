@@ -1,6 +1,8 @@
 const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
 const UserModel = require("../model/model");
+const JWTstrategy = require("passport-jwt").Strategy;
+const ExtractJWT = require("passport-jwt").ExtractJwt;
 
 //User registration, creating a record in the db.
 passport.use(
@@ -48,6 +50,23 @@ passport.use(
         return done(null, user, { message: "Logged in Successfully" });
       } catch (error) {
         return done(error);
+      }
+    }
+  )
+);
+
+// Verify the JWT
+passport.use(
+  new JWTstrategy(
+    {
+      secretOrKey: "california",
+      jwtFromRequest: ExtractJWT.fromUrlQueryParameter("secret_token"),
+    },
+    async (token, done) => {
+      try {
+        return done(null, token.user);
+      } catch (error) {
+        done(error);
       }
     }
   )
